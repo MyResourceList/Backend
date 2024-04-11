@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyResourceList.API.Models;
 using MyResourceList.API.Services.Resources;
-using MyResourceList.Contracts.Comment;
 using MyResourceList.Contracts.Resource;
 using MyResourceList.Contracts.Tag;
 
@@ -66,7 +65,7 @@ namespace MyResourceList.API.Controllers
                 Rating: resource.Rating,
                 Stages: resource.Stages,
                 Progress: resource.Progress,
-                Comments: resource.Comments.Select(comment => new CommentResponse(comment.Id, comment.Text, comment.CreatedAt, comment.ModifiedAt)).ToList(),
+                Comments: resource.Comments,
                 CreatedAt: resource.CreatedAt,
                 ModifiedAt: resource.ModifiedAt
             );
@@ -115,19 +114,6 @@ namespace MyResourceList.API.Controllers
                 );
             }
 
-            var comments = new List<Comment>();
-            foreach (var comment in request.Comments)
-            {
-                comments.Add(
-                    new Comment(
-                        id: Guid.NewGuid(),
-                        text: comment,
-                        createdAt: DateTime.Now,
-                        modifiedAt: DateTime.Now
-                    )
-                );
-            }
-
             var resource = new Resource(
                 id: id,
                 title: request.Title,
@@ -139,7 +125,7 @@ namespace MyResourceList.API.Controllers
                 rating: request.Rating,
                 stages: request.Stages,
                 progress: request.Progress,
-                comments: comments,
+                comments: request.Comments,
                 createdAt: DateTime.Now,
                 modifiedAt: DateTime.Now
             );
@@ -160,7 +146,7 @@ namespace MyResourceList.API.Controllers
                 Rating: new_resource.Rating,
                 Stages: new_resource.Stages,
                 Progress: new_resource.Progress,
-                Comments: new_resource.Comments.Select(comment => new CommentResponse(comment.Id, comment.Text, comment.CreatedAt, comment.ModifiedAt)).ToList(),
+                Comments: new_resource.Comments,
                 CreatedAt: new_resource.CreatedAt,
                 ModifiedAt: new_resource.ModifiedAt
             );

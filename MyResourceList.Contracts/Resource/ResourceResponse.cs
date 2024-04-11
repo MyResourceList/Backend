@@ -1,5 +1,4 @@
-﻿using MyResourceList.Contracts.Comment;
-using MyResourceList.Contracts.Tag;
+﻿using MyResourceList.Contracts.Tag;
 
 namespace MyResourceList.Contracts.Resource
 {
@@ -14,7 +13,7 @@ namespace MyResourceList.Contracts.Resource
         int Rating,
         int Stages,
         float Progress,
-        List<CommentResponse> Comments,
+        List<string> Comments,
         DateTime CreatedAt,
         DateTime ModifiedAt
     );
