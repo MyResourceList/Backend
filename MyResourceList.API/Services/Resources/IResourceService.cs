@@ -8,5 +8,8 @@ namespace MyResourceList.API.Services.Resources
         void CreateResource(Resource resource);
         Resource GetResource(Guid id);
         List<Resource> GetAllResources();
+        bool CheckResourceExists(Guid id);
+        bool UpdateResource(Guid id, Resource new_resource);
+        bool DeleteResource(Guid id);
     }
 }

@@ -2,7 +2,7 @@ using MyResourceList.API.Services.Resources;
 
 var builder = WebApplication.CreateBuilder(args);
 {
-    builder.Services.AddSingleton<IResourceService, ResourceService>();
+    builder.Services.AddSingleton<IResourceService, InMemResourceService>();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
