@@ -11,6 +11,7 @@ namespace MyResourceList.Contracts.Resource
         string Description,
         string Url,
         string Type,
-        List<string> Tags
+        List<string> Tags,
+        int Stages
     );
 }

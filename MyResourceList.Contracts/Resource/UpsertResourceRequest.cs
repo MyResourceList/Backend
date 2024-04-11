@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 namespace MyResourceList.Contracts.Resource
 {
     public record UpsertResourceRequest(
-        Guid Id,
         string Title,
         string Description,
         string Url,
@@ -16,9 +15,8 @@ namespace MyResourceList.Contracts.Resource
         List<string> Tags,
         string Status,
         int Rating,
+        int Stages,
         float Progress,
-        List<CommentResponse> Comments,
-        DateTime CreatedAt,
-        DateTime ModifiedAt
+        List<string> Comments
     );
 }

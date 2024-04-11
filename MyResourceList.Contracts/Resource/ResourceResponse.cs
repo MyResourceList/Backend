@@ -17,6 +17,7 @@ namespace MyResourceList.Contracts.Resource
         List<TagResponse> Tags,
         string Status,
         int Rating,
+        int Stages,
         float Progress,
         List<CommentResponse> Comments,
         DateTime CreatedAt,

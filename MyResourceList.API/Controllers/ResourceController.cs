@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyResourceList.API.Models;
+using MyResourceList.API.Services.Resources;
 using MyResourceList.Contracts.Comment;
 using MyResourceList.Contracts.Resource;
 using MyResourceList.Contracts.Tag;
@@ -10,6 +11,13 @@ namespace MyResourceList.API.Controllers
     [Route("api/resource")]
     public class ResourceController : ControllerBase
     {
+        private readonly IResourceService _resourceService;
+
+        public ResourceController(IResourceService resourceService)
+        {
+            _resourceService = resourceService;
+        }
+
         [HttpPost()]
         public IActionResult CreateResource(CreateResourceRequest request)
         {
@@ -17,40 +25,50 @@ namespace MyResourceList.API.Controllers
             var tags = new List<Tag>();
             foreach (var tag in request.Tags)
             {
-                tags.Add(new Tag(new Guid(), tag, DateTime.Now, DateTime.Now));
+                tags.Add(
+                    new Tag(
+                        id: new Guid(),
+                        name: tag,
+                        createdAt: DateTime.Now,
+                        modifiedAt: DateTime.Now
+                    )
+                );
             }
 
             var resource = new Resource(
-                new Guid(),
-                request.Title,
-                request.Description,
-                request.Url,
-                request.Type,
-                tags,
-                "New",
-                0,
-                0,
-                [],
-                DateTime.Now,
-                DateTime.Now
+                id: new Guid(),
+                title: request.Title,
+                description: request.Description,
+                url: request.Url,
+                type: request.Type,
+                tags: tags,
+                status: "New",
+                rating: 0,
+                stages: request.Stages,
+                progress: 0,
+                comments: [],
+                createdAt: DateTime.Now,
+                modifiedAt: DateTime.Now
             );
 
-            // TODO : Save resource to database
+            // Save resource to database
+            _resourceService.CreateResource(resource);
 
             // Mapping Entity to DTO
             var response = new ResourceResponse(
-                resource.Id,
-                resource.Title,
-                resource.Description,
-                resource.Url,
-                resource.Type,
-                resource.Tags.Select(tag => new TagResponse(tag.Id, tag.Name, tag.CreatedAt, tag.ModifiedAt)).ToList(),
-                resource.Status,
-                resource.Rating,
-                resource.Progress,
-                resource.Comments.Select(comment => new CommentResponse(comment.Id, comment.Text, comment.CreatedAt, comment.ModifiedAt)).ToList(),
-                resource.CreatedAt,
-                resource.ModifiedAt
+                Id: resource.Id,
+                Title: resource.Title,
+                Description: resource.Description,
+                Url: resource.Url,
+                Type: resource.Type,
+                Tags: resource.Tags.Select(tag => new TagResponse(tag.Id, tag.Name, tag.CreatedAt, tag.ModifiedAt)).ToList(),
+                Status: resource.Status,
+                Rating: resource.Rating,
+                Stages: resource.Stages,
+                Progress: resource.Progress,
+                Comments: resource.Comments.Select(comment => new CommentResponse(comment.Id, comment.Text, comment.CreatedAt, comment.ModifiedAt)).ToList(),
+                CreatedAt: resource.CreatedAt,
+                ModifiedAt: resource.ModifiedAt
             );
 
             return CreatedAtAction(
@@ -63,13 +81,15 @@ namespace MyResourceList.API.Controllers
         [HttpGet()]
         public IActionResult GetResources()
         {
-            return Ok();
+            var resources = _resourceService.GetAllResources();
+            return Ok(resources);
         }
 
         [HttpGet("{id:guid}")]
         public IActionResult GetResource(Guid id)
         {
-            return Ok(id);
+            var resource = _resourceService.GetResource(id);
+            return Ok(resource);
         }
 
         [HttpPut("{id:guid}")]
