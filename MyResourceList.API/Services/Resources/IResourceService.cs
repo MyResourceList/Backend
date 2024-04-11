@@ -1,5 +1,4 @@
 ﻿using MyResourceList.API.Models;
-using MyResourceList.Contracts.Resource;
 
 namespace MyResourceList.API.Services.Resources
 {

@@ -1,10 +1,5 @@
 ﻿using MyResourceList.Contracts.Comment;
 using MyResourceList.Contracts.Tag;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MyResourceList.Contracts.Resource
 {
