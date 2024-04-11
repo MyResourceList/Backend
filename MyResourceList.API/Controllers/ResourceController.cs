@@ -99,10 +99,8 @@ namespace MyResourceList.API.Controllers
         [HttpPut("{id:guid}")]
         public IActionResult UpsertResource(Guid id, UpsertResourceRequest request)
         {
-            if (_resourceService.CheckResourceExists(id) == false)
-            {
-                return NotFound();
-            }
+            var existed = _resourceService.CheckResourceExists(id);
+
             // Mapping DTO to Entity
             var tags = new List<Tag>();
             foreach (var tag in request.Tags)
@@ -147,30 +145,38 @@ namespace MyResourceList.API.Controllers
             );
 
             // Save resource to database
-            _resourceService.UpdateResource(id, resource);
+            _resourceService.UpsertResource(id, resource);
+            var new_resource = _resourceService.GetResource(id);
 
             // Mapping Entity to DTO
             var response = new ResourceResponse(
-                Id: resource.Id,
-                Title: resource.Title,
-                Description: resource.Description,
-                Url: resource.Url,
-                Type: resource.Type,
-                Tags: resource.Tags.Select(tag => new TagResponse(tag.Id, tag.Name, tag.CreatedAt, tag.ModifiedAt)).ToList(),
-                Status: resource.Status,
-                Rating: resource.Rating,
-                Stages: resource.Stages,
-                Progress: resource.Progress,
-                Comments: resource.Comments.Select(comment => new CommentResponse(comment.Id, comment.Text, comment.CreatedAt, comment.ModifiedAt)).ToList(),
-                CreatedAt: resource.CreatedAt,
-                ModifiedAt: resource.ModifiedAt
+                Id: new_resource.Id,
+                Title: new_resource.Title,
+                Description: new_resource.Description,
+                Url: new_resource.Url,
+                Type: new_resource.Type,
+                Tags: new_resource.Tags.Select(tag => new TagResponse(tag.Id, tag.Name, tag.CreatedAt, tag.ModifiedAt)).ToList(),
+                Status: new_resource.Status,
+                Rating: new_resource.Rating,
+                Stages: new_resource.Stages,
+                Progress: new_resource.Progress,
+                Comments: new_resource.Comments.Select(comment => new CommentResponse(comment.Id, comment.Text, comment.CreatedAt, comment.ModifiedAt)).ToList(),
+                CreatedAt: new_resource.CreatedAt,
+                ModifiedAt: new_resource.ModifiedAt
             );
 
-            return CreatedAtAction(
-                actionName: nameof(GetResource),
-                routeValues: new { id = response.Id },
-                value: response
-            );
+            if (!existed)
+            {
+                return CreatedAtAction(
+                    actionName: nameof(GetResource),
+                    routeValues: new { id = response.Id },
+                    value: response
+                );
+            }
+            else
+            {
+                return Ok(response);
+            }
         }
 
         [HttpDelete("{id:guid}")]

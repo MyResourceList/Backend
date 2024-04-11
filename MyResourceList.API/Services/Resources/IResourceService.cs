@@ -8,7 +8,7 @@ namespace MyResourceList.API.Services.Resources
         Resource GetResource(Guid id);
         List<Resource> GetAllResources();
         bool CheckResourceExists(Guid id);
-        bool UpdateResource(Guid id, Resource new_resource);
+        void UpsertResource(Guid id, Resource new_resource);
         bool DeleteResource(Guid id);
     }
 }

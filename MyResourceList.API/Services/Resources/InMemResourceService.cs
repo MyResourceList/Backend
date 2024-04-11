@@ -25,16 +25,17 @@ namespace MyResourceList.API.Services.Resources
             return _db.ContainsKey(id);
         }
 
-        public bool UpdateResource(Guid id, Resource new_resource)
+        public void UpsertResource(Guid id, Resource new_resource)
         {
             if(!CheckResourceExists(id))
             {
-                return false;
+                _db[id] = new_resource;
+                return;
             }
             var old_resource = _db[id];
             if(old_resource == null)
             {
-                return false;
+                return;
             }
             _db[id] = new Resource(
                 id: old_resource.Id,
@@ -51,7 +52,6 @@ namespace MyResourceList.API.Services.Resources
                 createdAt: old_resource.CreatedAt,
                 modifiedAt: new_resource.ModifiedAt
             );
-            return true;
         }
 
         public bool DeleteResource(Guid id)
