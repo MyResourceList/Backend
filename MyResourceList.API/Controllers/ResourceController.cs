@@ -27,7 +27,7 @@ namespace MyResourceList.API.Controllers
             {
                 tags.Add(
                     new Tag(
-                        id: new Guid(),
+                        id: Guid.NewGuid(),
                         name: tag,
                         createdAt: DateTime.Now,
                         modifiedAt: DateTime.Now
@@ -36,7 +36,7 @@ namespace MyResourceList.API.Controllers
             }
 
             var resource = new Resource(
-                id: new Guid(),
+                id: Guid.NewGuid(),
                 title: request.Title,
                 description: request.Description,
                 url: request.Url,
