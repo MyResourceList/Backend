@@ -5,7 +5,7 @@
         string Description,
         string Url,
         string Type,
-        List<string> Tags,
+        List<Guid> Tags,
         string Status,
         int Rating,
         int Stages,

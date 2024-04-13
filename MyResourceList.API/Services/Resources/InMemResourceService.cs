@@ -5,9 +5,14 @@ namespace MyResourceList.API.Services.Resources
     public class InMemResourceService : IResourceService
     {
         private readonly Dictionary<Guid, Resource> _db = new();
-        public void CreateResource(Resource resource)
+        public bool CreateResource(Resource resource)
         {
+            if(CheckResourceExists(resource.Id))
+            {
+                return false;
+            }
             _db.Add(resource.Id, resource);
+            return true;
         }
 
         public Resource GetResource(Guid id)
@@ -25,17 +30,17 @@ namespace MyResourceList.API.Services.Resources
             return _db.ContainsKey(id);
         }
 
-        public void UpsertResource(Guid id, Resource new_resource)
+        public bool UpsertResource(Guid id, Resource new_resource)
         {
             if(!CheckResourceExists(id))
             {
                 _db[id] = new_resource;
-                return;
+                return true;
             }
             var old_resource = _db[id];
             if(old_resource == null)
             {
-                return;
+                return false;
             }
             _db[id] = new Resource(
                 id: old_resource.Id,
@@ -52,11 +57,12 @@ namespace MyResourceList.API.Services.Resources
                 createdAt: old_resource.CreatedAt,
                 modifiedAt: new_resource.ModifiedAt
             );
+            return true;
         }
 
         public bool DeleteResource(Guid id)
         {
-            if(!this.CheckResourceExists(id))
+            if(!CheckResourceExists(id))
             {
                 return false;
             }

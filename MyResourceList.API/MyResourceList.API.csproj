@@ -11,8 +11,4 @@
     <ProjectReference Include="..\MyResourceList.Contracts\MyResourceList.Contracts.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Services\Tag\" />
-  </ItemGroup>
-
 </Project>

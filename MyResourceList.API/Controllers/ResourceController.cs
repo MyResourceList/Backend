@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MyResourceList.API.Models;
 using MyResourceList.API.Services.Resources;
+using MyResourceList.API.Services.Tags;
 using MyResourceList.Contracts.Resource;
 using MyResourceList.Contracts.Tag;
 
@@ -11,27 +12,29 @@ namespace MyResourceList.API.Controllers
     public class ResourceController : ControllerBase
     {
         private readonly IResourceService _resourceService;
+        private readonly ITagService _tagService;
 
-        public ResourceController(IResourceService resourceService)
+        public ResourceController(IResourceService resourceService, ITagService tagService)
         {
             _resourceService = resourceService;
+            _tagService = tagService;
         }
 
         [HttpPost()]
         public IActionResult CreateResource(CreateResourceRequest request)
         {
             // Mapping DTO to Entity
+
+            // Validate Tags
             var tags = new List<Tag>();
             foreach (var tag in request.Tags)
             {
-                tags.Add(
-                    new Tag(
-                        id: Guid.NewGuid(),
-                        name: tag,
-                        createdAt: DateTime.Now,
-                        modifiedAt: DateTime.Now
-                    )
-                );
+                var tag_exists = _tagService.CheckTagExists(tag);
+                if (!tag_exists)
+                {
+                    return BadRequest($"Tag {tag} does not exist");
+                }
+                tags.Add(_tagService.GetTag(tag));
             }
 
             var resource = new Resource(
@@ -51,7 +54,11 @@ namespace MyResourceList.API.Controllers
             );
 
             // Save resource to database
-            _resourceService.CreateResource(resource);
+            var is_created = _resourceService.CreateResource(resource);
+            if (!is_created)
+            {
+                return Problem("Error creating resource, please try again.");
+            }
 
             // Mapping Entity to DTO
             var response = new ResourceResponse(
@@ -101,17 +108,17 @@ namespace MyResourceList.API.Controllers
             var existed = _resourceService.CheckResourceExists(id);
 
             // Mapping DTO to Entity
+
+            // Validate Tags
             var tags = new List<Tag>();
             foreach (var tag in request.Tags)
             {
-                tags.Add(
-                    new Tag(
-                        id: Guid.NewGuid(),
-                        name: tag,
-                        createdAt: DateTime.Now,
-                        modifiedAt: DateTime.Now
-                    )
-                );
+                var tag_exists = _tagService.CheckTagExists(tag);
+                if (!tag_exists)
+                {
+                    return BadRequest($"Tag {tag} does not exist");
+                }
+                tags.Add(_tagService.GetTag(tag));
             }
 
             var resource = new Resource(
@@ -131,7 +138,13 @@ namespace MyResourceList.API.Controllers
             );
 
             // Save resource to database
-            _resourceService.UpsertResource(id, resource);
+            var is_upserted = _resourceService.UpsertResource(id, resource);
+            if (!is_upserted)
+            {
+                return Problem("Error upserting resource, please try again.");
+            }
+
+            // Fetch Updated/New Resource
             var new_resource = _resourceService.GetResource(id);
 
             // Mapping Entity to DTO
