@@ -51,10 +51,10 @@ namespace MyResourceList.API.Controllers
 
             // Save data to DB
             _resourceService.CreateResource(resource);
-            foreach (var resourceTag in resourceTags)
-            {
-                _resourceTagService.CreateResourceTag(resourceTag);
-            }
+            //foreach (var resourceTag in resourceTags)
+            //{
+            //    _resourceTagService.CreateResourceTag(resourceTag);
+            //}
             resource.ResourceTags = resourceTags;
             _resourceService.UpsertResource(resource.Id, resource);
 
@@ -121,10 +121,10 @@ namespace MyResourceList.API.Controllers
             }
 
             // Save resource to database
-            foreach (var resourceTag in resourceTags)
-            {
-                _resourceTagService.CreateResourceTag(resourceTag);
-            }
+            //foreach (var resourceTag in resourceTags)
+            //{
+            //    _resourceTagService.CreateResourceTag(resourceTag);
+            //}
             resource.ResourceTags = resourceTags;
             _resourceService.UpsertResource(id, resource);
 
