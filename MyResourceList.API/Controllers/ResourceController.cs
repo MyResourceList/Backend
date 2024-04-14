@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyResourceList.API.Mappers;
 using MyResourceList.API.Models;
 using MyResourceList.API.Services.Resources;
+using MyResourceList.API.Services.ResourceTags;
 using MyResourceList.API.Services.Tags;
 using MyResourceList.Contracts.Resource;
-using MyResourceList.Contracts.Tag;
 
 namespace MyResourceList.API.Controllers
 {
@@ -13,84 +14,69 @@ namespace MyResourceList.API.Controllers
     {
         private readonly IResourceService _resourceService;
         private readonly ITagService _tagService;
+        private readonly IResourceTagService _resourceTagService;
 
-        public ResourceController(IResourceService resourceService, ITagService tagService)
+        public ResourceController(IResourceService resourceService, ITagService tagService, IResourceTagService resourceTagService)
         {
             _resourceService = resourceService;
             _tagService = tagService;
+            _resourceTagService = resourceTagService;
         }
 
         [HttpPost()]
         public IActionResult CreateResource(CreateResourceRequest request)
         {
             // Mapping DTO to Entity
+            var resource = ResourceMapper.MapCreateResourceDTOToResource(request);
 
             // Validate Tags
-            var tags = new List<ResourceTag>();
+            var resourceTags = new List<ResourceTag>();
             foreach (var tag in request.Tags)
             {
-                var tag_exists = _tagService.CheckTagExists(tag);
-                if (!tag_exists)
+                var tagExists = _tagService.CheckTagExists(tag);
+                if (!tagExists)
                 {
                     return BadRequest($"Tag {tag} does not exist");
                 }
-                var tag_obj = _tagService.GetTag(tag);
-                //tags.Add(new ResourceTag());
+                var tagObj = _tagService.GetTag(tag);
+                resourceTags.Add(
+                    new ResourceTag(
+                        resourceId: resource.Id,
+                        resource: resource,
+                        tagId: tagObj.Id,
+                        tag: tagObj
+                    )
+                );
             }
 
-            //var resource = new Resource(
-            //    id: Guid.NewGuid(),
-            //    title: request.Title,
-            //    description: request.Description,
-            //    url: request.Url,
-            //    type: request.Type,
-            //    resourcetags: tags,
-            //    status: "New",
-            //    rating: 0,
-            //    stages: request.Stages,
-            //    progress: 0,
-            //    comments: [],
-            //    createdAt: DateTime.Now,
-            //    modifiedAt: DateTime.Now
-            //);
+            // Save data to DB
+            _resourceService.CreateResource(resource);
+            foreach (var resourceTag in resourceTags)
+            {
+                _resourceTagService.CreateResourceTag(resourceTag);
+            }
+            resource.ResourceTags = resourceTags;
+            _resourceService.UpsertResource(resource.Id, resource);
 
-            //// Save resource to database
-            //var is_created = _resourceService.CreateResource(resource);
-            //if (!is_created)
-            //{
-            //    return Problem("Error creating resource, please try again.");
-            //}
-
-            //// Mapping Entity to DTO
-            //var response = new ResourceResponse(
-            //    Id: resource.Id,
-            //    Title: resource.Title,
-            //    Description: resource.Description,
-            //    Url: resource.Url,
-            //    Type: resource.Type,
-            //    Tags: resource.ResourceTags.Select(resourcetag => new TagResponse(resourcetag.Tag.Id, resourcetag.Tag.Name, resourcetag.Tag.CreatedAt, resourcetag.Tag.ModifiedAt)).ToList(),
-            //    Status: resource.Status,
-            //    Rating: resource.Rating,
-            //    Stages: resource.Stages,
-            //    Progress: resource.Progress,
-            //    Comments: resource.Comments,
-            //    CreatedAt: resource.CreatedAt,
-            //    ModifiedAt: resource.ModifiedAt
-            //);
-
-            //return CreatedAtAction(
-            //    actionName: nameof(GetResource),
-            //    routeValues: new { id = response.Id },
-            //    value: response
-            //);
-            return Ok();
+            // Mapping Entity to DTO
+            var response = ResourceMapper.MapResourceToResourceDTO(resource);
+            return CreatedAtAction(
+                actionName: nameof(GetResource),
+                routeValues: new { id = response.Id },
+                value: response
+            );
         }
 
         [HttpGet()]
         public IActionResult GetResources()
         {
             var resources = _resourceService.GetAllResources();
-            return Ok(resources);
+            var response = new List<ResourceResponse>();
+            foreach (var resource in resources)
+            {
+                response.Add(ResourceMapper.MapResourceToResourceDTO(resource));
+            }
+            return Ok(response);
         }
 
         [HttpGet("{id:guid}")]
@@ -101,84 +87,65 @@ namespace MyResourceList.API.Controllers
                 return NotFound();
             }
             var resource = _resourceService.GetResource(id);
-            return Ok(resource);
+            var response = ResourceMapper.MapResourceToResourceDTO(resource);
+            return Ok(response);
         }
 
         [HttpPut("{id:guid}")]
         public IActionResult UpsertResource(Guid id, UpsertResourceRequest request)
         {
+            // Check if resource already exists
             var existed = _resourceService.CheckResourceExists(id);
 
             // Mapping DTO to Entity
+            var resource = ResourceMapper.MapUpsertResourceDTOToResource(request);
 
             // Validate Tags
-            var tags = new List<ResourceTag>();
+            var resourceTags = new List<ResourceTag>();
             foreach (var tag in request.Tags)
             {
-                var tag_exists = _tagService.CheckTagExists(tag);
-                if (!tag_exists)
+                var tagExists = _tagService.CheckTagExists(tag);
+                if (!tagExists)
                 {
                     return BadRequest($"Tag {tag} does not exist");
                 }
-                //tags.Add(new ResourceTag());
+                var tagObj = _tagService.GetTag(tag);
+                resourceTags.Add(
+                    new ResourceTag(
+                        resourceId: resource.Id,
+                        resource: resource,
+                        tagId: tagObj.Id,
+                        tag: tagObj
+                    )
+                );
             }
 
-            //var resource = new Resource(
-            //    id: id,
-            //    title: request.Title,
-            //    description: request.Description,
-            //    url: request.Url,
-            //    type: request.Type,
-            //    resourcetags: tags,
-            //    status: request.Status,
-            //    rating: request.Rating,
-            //    stages: request.Stages,
-            //    progress: request.Progress,
-            //    comments: request.Comments,
-            //    createdAt: DateTime.Now,
-            //    modifiedAt: DateTime.Now
-            //);
+            // Save resource to database
+            foreach (var resourceTag in resourceTags)
+            {
+                _resourceTagService.CreateResourceTag(resourceTag);
+            }
+            resource.ResourceTags = resourceTags;
+            _resourceService.UpsertResource(id, resource);
 
-            //// Save resource to database
-            //var is_upserted = _resourceService.UpsertResource(id, resource);
-            //if (!is_upserted)
-            //{
-            //    return Problem("Error upserting resource, please try again.");
-            //}
+            // Fetch Updated/New Resource
+            var new_resource = _resourceService.GetResource(id);
 
-            //// Fetch Updated/New Resource
-            //var new_resource = _resourceService.GetResource(id);
+            // Mapping Entity to DTO
+            var response = ResourceMapper.MapResourceToResourceDTO(new_resource);
 
-            //// Mapping Entity to DTO
-            //var response = new ResourceResponse(
-            //    Id: new_resource.Id,
-            //    Title: new_resource.Title,
-            //    Description: new_resource.Description,
-            //    Url: new_resource.Url,
-            //    Type: new_resource.Type,
-            //    Tags: new_resource.ResourceTags.Select(resourcetag => new TagResponse(resourcetag.Tag.Id, resourcetag.Tag.Name, resourcetag.Tag.CreatedAt, resourcetag.Tag.ModifiedAt)).ToList(),
-            //    Status: new_resource.Status,
-            //    Rating: new_resource.Rating,
-            //    Stages: new_resource.Stages,
-            //    Progress: new_resource.Progress,
-            //    Comments: new_resource.Comments,
-            //    CreatedAt: new_resource.CreatedAt,
-            //    ModifiedAt: new_resource.ModifiedAt
-            //);
-
-            //if (!existed)
-            //{
-            //    return CreatedAtAction(
-            //        actionName: nameof(GetResource),
-            //        routeValues: new { id = response.Id },
-            //        value: response
-            //    );
-            //}
-            //else
-            //{
-            //    return Ok(response);
-            //}
-            return Ok();
+            if (!existed)
+            {
+                return CreatedAtAction(
+                    actionName: nameof(GetResource),
+                    routeValues: new { id = response.Id },
+                    value: response
+                );
+            }
+            else
+            {
+                return Ok(response);
+            }
         }
 
         [HttpDelete("{id:guid}")]
