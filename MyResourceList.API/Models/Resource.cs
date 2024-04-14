@@ -26,7 +26,7 @@ namespace MyResourceList.API.Models
         public string Url { get; set; }
         public string Type { get; set; }
         public ICollection<ResourceTag> ResourceTags { get; set; }
-        [Column(TypeName = "string")]
+        [Column(TypeName = "VARCHAR")]
         public ResourceStates Status { get; set; }
         public int Rating { get; set; }
         public int Stages { get; set; }

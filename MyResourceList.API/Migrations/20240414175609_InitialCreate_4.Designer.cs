@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MyResourceList.API.Migrations
 {
     [DbContext(typeof(MyResourceListContext))]
-    [Migration("20240414125459_InitialCreate_4")]
+    [Migration("20240414175609_InitialCreate_4")]
     partial class InitialCreate_4
     {
         /// <inheritdoc />
@@ -37,14 +37,14 @@ namespace MyResourceList.API.Migrations
                         .HasColumnType("text[]");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<float>("Progress")
                         .HasColumnType("real");
@@ -55,8 +55,9 @@ namespace MyResourceList.API.Migrations
                     b.Property<int>("Stages")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("string");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -97,10 +98,10 @@ namespace MyResourceList.API.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("ModifiedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
