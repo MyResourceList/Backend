@@ -17,4 +17,8 @@
     <ProjectReference Include="..\MyResourceList.Contracts\MyResourceList.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Mappers\" />
+  </ItemGroup>
+
 </Project>

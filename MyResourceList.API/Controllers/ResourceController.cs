@@ -35,7 +35,7 @@ namespace MyResourceList.API.Controllers
                     return BadRequest($"Tag {tag} does not exist");
                 }
                 var tag_obj = _tagService.GetTag(tag);
-                tags.Add(new ResourceTag());
+                //tags.Add(new ResourceTag());
             }
 
             //var resource = new Resource(
@@ -120,7 +120,7 @@ namespace MyResourceList.API.Controllers
                 {
                     return BadRequest($"Tag {tag} does not exist");
                 }
-                tags.Add(new ResourceTag());
+                //tags.Add(new ResourceTag());
             }
 
             //var resource = new Resource(
