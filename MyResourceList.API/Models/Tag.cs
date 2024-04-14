@@ -2,10 +2,10 @@
 {
     public class Tag
     {
-        public Guid Id { get; }
-        public string Name { get; }
-        public DateTime CreatedAt { get; }
-        public DateTime ModifiedAt { get; }
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime ModifiedAt { get; set; }
 
         public Tag(Guid id, string name, DateTime createdAt, DateTime modifiedAt)
         {

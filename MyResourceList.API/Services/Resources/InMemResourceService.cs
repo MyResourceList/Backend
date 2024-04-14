@@ -42,21 +42,21 @@ namespace MyResourceList.API.Services.Resources
             {
                 return false;
             }
-            _db[id] = new Resource(
-                id: old_resource.Id,
-                title: new_resource.Title,
-                description: new_resource.Description,
-                url : new_resource.Url,
-                type: new_resource.Type,
-                tags: new_resource.Tags,
-                status: new_resource.Status,
-                rating: new_resource.Rating,
-                stages: new_resource.Stages,
-                progress: new_resource.Progress,
-                comments: new_resource.Comments,
-                createdAt: old_resource.CreatedAt,
-                modifiedAt: new_resource.ModifiedAt
-            );
+            //_db[id] = new Resource(
+            //    id: old_resource.Id,
+            //    title: new_resource.Title,
+            //    description: new_resource.Description,
+            //    url : new_resource.Url,
+            //    type: new_resource.Type,
+            //    resourcetags: (List<ResourceTag>)new_resource.ResourceTags,
+            //    status: new_resource.Status,
+            //    rating: new_resource.Rating,
+            //    stages: new_resource.Stages,
+            //    progress: new_resource.Progress,
+            //    comments: new_resource.Comments,
+            //    createdAt: old_resource.CreatedAt,
+            //    modifiedAt: new_resource.ModifiedAt
+            //);
             return true;
         }
 
